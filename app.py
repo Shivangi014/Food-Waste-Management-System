@@ -10,7 +10,7 @@ import streamlit as st
 import plotly.express as px
 
 DB_PATH = "food_waste.db"
-DATA_DIR = "data"
+DATA_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # ---------------- DB SETUP ----------------
 @st.cache_resource
@@ -22,16 +22,19 @@ def get_conn():
     return conn
 
 def seed_db(conn):
-    providers = pd.read_csv(f"{DATA_DIR}/providers_data.csv")
-    receivers = pd.read_csv(f"{DATA_DIR}/receivers_data.csv")
-    food = pd.read_csv(f"{DATA_DIR}/food_listings_data.csv")
-    claims = pd.read_csv(f"{DATA_DIR}/claims_data.csv")
+    providers = pd.read_csv(os.path.join(BASE_DIR, "providers_data.csv"))
+    receivers = pd.read_csv(os.path.join(BASE_DIR, "receivers_data.csv"))
+    food = pd.read_csv(os.path.join(BASE_DIR, "food_listings_data.csv"))
+    claims = pd.read_csv(os.path.join(BASE_DIR, "claims_data.csv"))
+
     food["Expiry_Date"] = pd.to_datetime(food["Expiry_Date"]).dt.strftime("%Y-%m-%d")
     claims["Timestamp"] = pd.to_datetime(claims["Timestamp"]).dt.strftime("%Y-%m-%d %H:%M:%S")
+
     providers.to_sql("providers", conn, index=False, if_exists="replace")
     receivers.to_sql("receivers", conn, index=False, if_exists="replace")
     food.to_sql("food_listings", conn, index=False, if_exists="replace")
     claims.to_sql("claims", conn, index=False, if_exists="replace")
+
     conn.commit()
 
 def q(sql, params=()):
