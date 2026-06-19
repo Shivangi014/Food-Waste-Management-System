@@ -15,10 +15,11 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 @st.cache_resource
 def get_conn():
-    first_time = not os.path.exists(DB_PATH)
     conn = sqlite3.connect(DB_PATH, check_same_thread=False)
 
-    if first_time:
+    try:
+        conn.execute("SELECT 1 FROM providers LIMIT 1")
+    except:
         seed_db(conn)
 
     return conn
