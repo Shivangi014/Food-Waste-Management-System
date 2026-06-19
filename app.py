@@ -10,18 +10,22 @@ import streamlit as st
 import plotly.express as px
 
 DB_PATH = "food_waste.db"
-DATA_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# ---------------- DB SETUP ----------------
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 @st.cache_resource
 def get_conn():
     first_time = not os.path.exists(DB_PATH)
     conn = sqlite3.connect(DB_PATH, check_same_thread=False)
+
     if first_time:
         seed_db(conn)
+
     return conn
 
+
 def seed_db(conn):
+
     providers = pd.read_csv(os.path.join(BASE_DIR, "providers_data.csv"))
     receivers = pd.read_csv(os.path.join(BASE_DIR, "receivers_data.csv"))
     food = pd.read_csv(os.path.join(BASE_DIR, "food_listings_data.csv"))
